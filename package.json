@@ -52,6 +52,9 @@
     "semantic-release": "^4.3.5"
   },
   "jest": {
+    "unmockedModulePathPatterns": [
+      "node_modules"
+    ],
     "testPathDirs": [
       "lib"
     ]
@@ -62,6 +65,7 @@
     }
   },
   "dependencies": {
-    "normalizer": "^1.2.7"
+    "normalizer": "^1.2.7",
+    "url": "^0.11.0"
   }
 }

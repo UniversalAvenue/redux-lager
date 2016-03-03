@@ -1,51 +1,26 @@
-require('whatwg-fetch');
-const fetch = window.fetch;
-
 import _ from 'lodash';
-import Qs from 'qs';
+import * as helpers from './requestHelpers';
 
-export function throwOnFailure(res) {
-  if (!res.ok) {
-    throw new Error(res.statusText);
-  }
-  return res;
+export function requestHelper(...middlewares) {
+  return _.reduce(helpers, (sum, helper, key) => ({
+    ...sum,
+    [key]: (...args) => requestHelper.apply(null, [...middlewares, helper.apply(null, args)]),
+  }), {
+    value: () => (...args) =>
+      _.reduce(middlewares, (sum, ware) => ware.apply(null, sum), args),
+  });
 }
 
-export default (input, withFetch = fetch) => {
-  let _query = null;
-  const _authQuery = {};
-  const init = {
+function prepareNothing(...args) {
+  return args;
+}
+
+export default function fetchWrap(options) {
+  const {
+    fetch,
+    prepareRequest = prepareNothing,
+  } = options;
+  return function fetcher(input, init) {
+    return fetch.apply(null, prepareRequest(input, init));
   };
-  const wrapped = {
-    set: (opts) => {
-      _.merge(init, opts);
-      return wrapped;
-    },
-    query: (query) => {
-      if (!query) {
-        return wrapped;
-      }
-      _query = query;
-      return wrapped;
-    },
-    body: (json) => {
-      _.assign(init, {
-        headers: _.assign(init.headers || {}, {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify(json),
-      });
-      return wrapped;
-    },
-    fetch: () => {
-      let append = Qs.stringify(_.assign({}, _query, _authQuery));
-      if (append) {
-        append = `?${append}`;
-      }
-      const path = input + append;
-      return withFetch(path, init);
-    },
-  };
-  return wrapped;
-};
+}
