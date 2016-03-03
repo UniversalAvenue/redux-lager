@@ -30,9 +30,14 @@
     "url": "https://github.com/UniversalAvenue/redux-lager/issues"
   },
   "homepage": "https://github.com/UniversalAvenue/redux-lager#readme",
-  "peerDependencies": {},
+  "peerDependencies": {
+    "lodash": "^4.6.1",
+    "redux": "^3.3.1",
+    "updeep": "^0.13.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.3.17",
+    "babel-eslint": "^5.0.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
@@ -55,5 +60,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "normalizer": "^1.2.7"
   }
 }
