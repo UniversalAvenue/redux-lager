@@ -18,16 +18,23 @@ export function applyToInput(fn) {
     ];
 }
 
-export function prependPath(prepend) {
-  return applyToInput(input => url.resolve(prepend, input));
+export function prependPath(_prepend) {
+  return applyToInput((input, init) => {
+    const prepend = _.isFunction(_prepend) ? _prepend(input, init) : _prepend;
+    return url.resolve(prepend, input);
+  });
 }
 
-export function appendPath(append) {
-  return applyToInput(input => url.resolve(input, append));
+export function appendPath(_append) {
+  return applyToInput((input, init) => {
+    const append = _.isFunction(_append) ? _append(input, init) : _append;
+    return url.resolve(input, append);
+  });
 }
 
-export function prependQuery(query) {
-  return applyToInput(input => {
+export function prependQuery(_query) {
+  return applyToInput((input, init) => {
+    const query = _.isFunction(_query) ? _query(input, init) : _query;
     const pieces = url.parse(input, true);
     return url.format({
       ...pieces,
@@ -40,8 +47,9 @@ export function prependQuery(query) {
   });
 }
 
-export function appendQuery(query) {
-  return applyToInput(input => {
+export function appendQuery(_query) {
+  return applyToInput((input, init) => {
+    const query = _.isFunction(_query) ? _query(input, init) : _query;
     const pieces = url.parse(input, true);
     return url.format({
       ...pieces,
