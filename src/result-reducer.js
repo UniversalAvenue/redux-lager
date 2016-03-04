@@ -8,18 +8,16 @@ export default function resultReducer(state = {}, action = {}) {
     return state;
   }
   const {
-    endpoint,
     identifier,
   } = action;
 
-  const id = identifier || endpoint;
   switch (lagerType) {
     case LAGER_SUCCESS: {
       const {
         result,
       } = action.response;
       return u({
-        [id]: {
+        [identifier]: {
           loading: false,
           result,
         },
@@ -27,13 +25,13 @@ export default function resultReducer(state = {}, action = {}) {
     }
     case LAGER_REQUEST:
       return u({
-        [id]: {
+        [identifier]: {
           loading: true,
         },
       }, state);
     case LAGER_FAILURE:
       return u({
-        [id]: {
+        [identifier]: {
           loading: false,
           error: true,
         },
