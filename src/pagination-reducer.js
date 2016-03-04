@@ -10,10 +10,8 @@ export default function paginationReducer(state = {}, action = {}) {
   }
   const {
     identifier,
-    endpoint,
     schemaKeys,
   } = action;
-  const id = identifier || endpoint;
   const queriedPage = action.query && action.query.page || 0;
   if (!queriedPage) {
     return state;
@@ -30,7 +28,7 @@ export default function paginationReducer(state = {}, action = {}) {
         nextPage,
       } = result;
       return u({
-        [id]: {
+        [identifier]: {
           loading: false,
           pages: {
             [currentPage - 1]: {
@@ -46,10 +44,10 @@ export default function paginationReducer(state = {}, action = {}) {
       }, state);
     }
     case LAGER_REQUEST: {
-      const oldQuery = state[id] && state[id].query;
+      const oldQuery = state[identifier] && state[identifier].query;
       if (_.isEqual(oldQuery, query) && queriedPage > 1) {
         return u({
-          [id]: {
+          [identifier]: {
             loading: true,
             pages: {
               [queriedPage - 1]: {
@@ -60,7 +58,7 @@ export default function paginationReducer(state = {}, action = {}) {
         }, state);
       }
       return u({
-        [id]: {
+        [identifier]: {
           loading: true,
           pages: () => ({
             [queriedPage - 1]: {
@@ -72,7 +70,7 @@ export default function paginationReducer(state = {}, action = {}) {
     }
     case LAGER_FAILURE:
       return u({
-        [id]: {
+        [identifier]: {
           loading: false,
           error: true,
         },
