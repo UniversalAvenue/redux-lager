@@ -90,7 +90,7 @@ describe('fetch with prepareRequest', () => {
   beforeEach(() => {
     fetchMock = jest.genMockFunction();
     fetch = fetchWrap({
-      prepareRequest: requestHelper()
+      prepareRequest: req => req
         .applyToInit(applyAuthToken)
         .value(),
       fetch: fetchMock,

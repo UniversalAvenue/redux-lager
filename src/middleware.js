@@ -10,59 +10,47 @@ export const LAGER_FAILURE = 'LAGER FAILURE';
 
 const buildCallApi = options => getState =>
   (
-    endpoint,
+    input,
     schema,
-    fetchOptions = { method: 'GET' },
-    query = null,
-    data = null
-  ) => fetchWrap(options.basePath(endpoint) + options.appendPath(endpoint))
-    .set(options.fetchOptions(getState))
-    .set(fetchOptions)
-    .body(data)
-    .query(options.query(getState))
-    .query(query)
-    .fetch()
+    init
+  ) => fetchWrap(options, getState())(input, init)
     .then(response =>
       response.json()
         .then(json => ({ json, response }),
-              error => ({ json: error, response }))
-    ).then(({ json, response }) => {
+              error => ({ error, response }))
+    ).then(({ json, response, error }) => {
       if (!response.ok) {
-        return Promise.reject({ message: `${response.status}: ${response.statusText}` });
+        return Promise.reject({ message: `${response.status}: ${response.statusText}`, error });
       }
       return normalize(json, schema);
     });
 
-const defaultOptions = {
-  fetchOptions: () => ({}),
-  query: () => null,
-  basePath: path => path,
-  appendPath: () => '',
-};
-
 export default (options = {}) => store => {
-  const callApi = buildCallApi({ ...defaultOptions, ...options })(store.getState);
+  const callApi = buildCallApi(options)(store.getState);
   return next => action => {
     const lagerFetch = action[LAGER_FETCH];
     if (typeof lagerFetch === 'undefined') {
       return next(action);
     }
 
-    let { endpoint, query, fetchOptions } = lagerFetch;
-    const { schema, types, data, identifier } = lagerFetch;
+    let { input, init, identifier } = lagerFetch;
+    const { schema, types } = lagerFetch;
 
-    if (typeof endpoint === 'function') {
-      endpoint = endpoint(store.getState());
-    }
-    if (typeof query === 'function') {
-      query = query(store.getState());
-    }
-    if (typeof fetchOptions === 'function') {
-      fetchOptions = fetchOptions(store.getState());
+    if (!identifier) {
+      identifier = input;
     }
 
-    if (typeof endpoint !== 'string') {
-      throw new Error('Specify a string endpoint URL.');
+    let state;
+    if (typeof input === 'function') {
+      state = state || store.getState();
+      input = input(state);
+    }
+    if (typeof init === 'function') {
+      state = state || store.getState();
+      init = init(state);
+    }
+    if (typeof input !== 'string') {
+      throw new Error('Specify a string input URL.');
     }
     if (!schema) {
       throw new Error('Specify one of the exported Schemas.');
@@ -76,9 +64,8 @@ export default (options = {}) => store => {
 
     function actionWith(more, lagerType) {
       const finalAction = Object.assign({
-        endpoint,
-        query,
-        fetchOptions,
+        input,
+        init,
         schemaKeys: _.keys(schema),
         identifier,
       }, action, more);
@@ -90,7 +77,7 @@ export default (options = {}) => store => {
     const [requestType, successType, failureType] = types;
     next(actionWith({ type: requestType }, LAGER_REQUEST));
 
-    return callApi(endpoint, schema, fetchOptions, query, data).then(
+    return callApi(input, schema, init).then(
       response => next(actionWith({
         response,
         type: successType,

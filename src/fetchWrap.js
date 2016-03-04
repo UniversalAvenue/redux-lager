@@ -15,12 +15,15 @@ function prepareNothing(...args) {
   return args;
 }
 
-export default function fetchWrap(options) {
+export default function fetchWrap(options, ...prepareArgs) {
   const {
     fetch,
-    prepareRequest = prepareNothing,
+    prepareRequest,
   } = options;
+  const prep = prepareRequest ?
+    prepareRequest.apply(null, [requestHelper(), ...prepareArgs]) :
+    prepareNothing;
   return function fetcher(input, init) {
-    return fetch.apply(null, prepareRequest(input, init));
+    return fetch.apply(null, prep(input, init));
   };
 }
