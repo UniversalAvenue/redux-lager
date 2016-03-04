@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import * as helpers from './requestHelpers';
+import * as helpers from './request-helpers';
 
 export function requestHelper(...middlewares) {
   return _.reduce(helpers, (sum, helper, key) => ({

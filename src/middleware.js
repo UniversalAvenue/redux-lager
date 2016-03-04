@@ -1,4 +1,4 @@
-import fetchWrap from './fetchWrap';
+import fetchWrap from './fetch-wrap';
 import _ from 'lodash';
 import { normalize } from 'normalizr';
 export const LAGER_FETCH = Symbol('Lager Fetch');

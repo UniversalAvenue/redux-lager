@@ -1,7 +1,7 @@
 import { Schema } from 'normalizr';
 jest.dontMock('../middleware');
-jest.dontMock('../fetchWrap');
-jest.dontMock('../requestHelpers');
+jest.dontMock('../fetch-wrap');
+jest.dontMock('../request-helpers');
 
 const middleware = require('../middleware').default;
 const LAGER_FETCH = require('../middleware').LAGER_FETCH;

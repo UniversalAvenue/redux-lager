@@ -1,7 +1,7 @@
-jest.dontMock('../fetchWrap');
-jest.dontMock('../requestHelpers');
+jest.dontMock('../fetch-wrap');
+jest.dontMock('../request-helpers');
 
-const pack = require('../fetchWrap');
+const pack = require('../fetch-wrap');
 const fetchWrap = pack.default;
 const requestHelper = pack.requestHelper;
 
