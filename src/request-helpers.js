@@ -18,6 +18,17 @@ export function applyToInput(fn) {
     ];
 }
 
+export function setHeaders(_headers) {
+  return applyToInit((input, init) => {
+    const headers = _.isFunction(_headers) ? _headers(input, init) : _headers;
+    return {
+      headers,
+    };
+  });
+}
+
+export const setQuery = (query) => setHeaders({ query });
+
 export function prependPath(_prepend) {
   return applyToInput((input, init) => {
     const prepend = _.isFunction(_prepend) ? _prepend(input, init) : _prepend;

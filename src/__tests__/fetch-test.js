@@ -24,26 +24,26 @@ describe('fetch without options', () => {
 
 describe('prepareRequest', () => {
   it('should be chainable', () => {
-    const fn = requestHelper()
+    const fn = requestHelper(id => id)
       .applyToInit(() => ({}))
       .value();
     expect(fn('test', {})).toEqual(['test', {}]);
   });
   it('should not overwrite something without cause', () => {
-    const fn = requestHelper()
+    const fn = requestHelper(id => id)
       .applyToInit(() => ({}))
       .value();
     expect(fn('test', { help: 'me' })).toEqual(['test', { help: 'me' }]);
   });
   it('should overwrite something with cause', () => {
-    const fn = requestHelper()
+    const fn = requestHelper(id => id)
       .applyToInit(() => ({ help: 'ok' }))
       .value();
     expect(fn('test', { help: 'me' })).toEqual(['test', { help: 'ok' }]);
   });
 
   it('should create a pre/appended path', () => {
-    const fn = requestHelper()
+    const fn = requestHelper(id => id)
       .prependPath('https://universalavenue.com')
       .appendPath('?query=true')
       .value();
@@ -52,7 +52,7 @@ describe('prepareRequest', () => {
   });
 
   it('should append query', () => {
-    const fn = requestHelper()
+    const fn = requestHelper(id => id)
       .appendQuery({
         auth: true,
       })
@@ -60,7 +60,7 @@ describe('prepareRequest', () => {
     expect(fn('resource/id')).toEqual(['resource/id?auth=true', undefined]);
   });
   it('should overwrite on append query', () => {
-    const fn = requestHelper()
+    const fn = requestHelper(id => id)
       .appendQuery({
         auth: true,
       })
@@ -68,7 +68,7 @@ describe('prepareRequest', () => {
     expect(fn('resource/id?auth=false')).toEqual(['resource/id?auth=true', undefined]);
   });
   it('should not overwrite on prepend query', () => {
-    const fn = requestHelper()
+    const fn = requestHelper(id => id)
       .prependQuery({
         auth: true,
       })
