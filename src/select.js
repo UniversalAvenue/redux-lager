@@ -1,6 +1,10 @@
 import _ from 'lodash';
 import u from 'updeep';
 
+export const FETCH_STATE_REQUESTED = 'requested';
+export const FETCH_STATE_COMPLETED = 'completed';
+export const FETCH_STATE_FAILED = 'failed';
+
 export const selectEntities = type => ids => state => {
   const all = _.get(state, `lager.entities.${type}`);
   return _.map(ids, id => all[id]);
@@ -49,7 +53,14 @@ export const selectFetchState = (identifier) => state => {
   if (!store) {
     return null;
   }
-  return _.pick(store, 'loading', 'error');
+  const result = _.pick(store, 'loading', 'error');
+  if (result.loading) {
+    return FETCH_STATE_REQUESTED;
+  }
+  if (result.error) {
+    return FETCH_STATE_FAILED;
+  }
+  return FETCH_STATE_COMPLETED;
 };
 
 export const selectIsPageLoading = endpoint => page => state => {
@@ -85,17 +96,17 @@ export const selectPagedRow = (endpoint, schema) => state => fetchPage => {
       if (!id) {
         return null;
       }
-      return selectEntity('orders')(id)(state);
+      return selectEntity(schemaKeys[0])(id)(state);
     }
     return _.reduce(schemaKeys, (sum, key) => {
-      const id = _.get(page, `${schemaKeys[0]}.[${inPagePos}]`);
+      const id = _.get(page, `${key}.[${inPagePos}]`);
       if (!id) {
         return Object.assign(sum, {
           [key]: null,
         });
       }
       return Object.assign(sum, {
-        [key]: selectEntity('orders')(id)(state),
+        [key]: selectEntity(key)(id)(state),
       });
     }, {});
   };

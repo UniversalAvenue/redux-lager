@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { LAGER_FETCH } from './middleware';
-import { selectIsPageLoading } from './select';
 import { requestHelper } from './fetch-wrap';
 
 export const ENTITIES_REQUEST = 'ENTITIES_REQUEST';
@@ -42,22 +41,3 @@ function methodsReducer(sum, method, key) {
 }
 
 _.reduce(methods, methodsReducer, fetch);
-
-// fetch.get('/me/resource').appendQuery
-
-export const fetchPage = (path, schema, query) => {
-  const pages = [];
-  const isLoading = selectIsPageLoading(path);
-  const fetchOnDefer = (dispatch, getState) => () => {
-    _.uniq(pages).map(page => {
-      if (!isLoading(page)(getState())) {
-        dispatch(fetch(path, schema, { ...query, page }));
-      }
-    });
-    pages.length = 0;
-  };
-  return page => (dispatch, getState) => {
-    pages.push(page);
-    _.defer(fetchOnDefer(dispatch, getState));
-  };
-};
