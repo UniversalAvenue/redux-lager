@@ -9,7 +9,7 @@ const {
 } = require('../middleware');
 const result = require('../result-reducer').default;
 
-describe('MetaReducer', () => {
+describe('ResultReducer', () => {
   let state = {};
   const successWith = data => ({
     [LAGER_ACTION]: LAGER_SUCCESS,

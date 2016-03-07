@@ -1,7 +1,17 @@
 import u from 'updeep';
 import _ from 'lodash';
+import url from 'url';
 
 import { LAGER_REQUEST, LAGER_FAILURE, LAGER_SUCCESS, LAGER_ACTION } from './middleware';
+
+export function removePageParam(str) {
+  const decomp = url.parse(str, true);
+  if (decomp.query) {
+    delete decomp.query.page;
+    delete decomp.search;
+  }
+  return url.format(decomp);
+}
 
 export default function paginationReducer(state = {}, action = {}) {
   const lagerType = action[LAGER_ACTION];
@@ -10,13 +20,18 @@ export default function paginationReducer(state = {}, action = {}) {
   }
   const {
     identifier,
+    endpoint,
     schemaKeys,
   } = action;
-  const queriedPage = action.query && action.query.page || 0;
-  if (!queriedPage) {
+  const {
+    query: {
+      page,
+    } = {},
+  } = url.parse(endpoint, true);
+  if (!page) {
     return state;
   }
-  const query = _.omit(action.query, 'page');
+  const id = removePageParam(identifier);
   switch (lagerType) {
     case LAGER_SUCCESS: {
       const {
@@ -25,54 +40,45 @@ export default function paginationReducer(state = {}, action = {}) {
       const {
         currentPage,
         totalEntries,
-        nextPage,
+        perPage,
       } = result;
       return u({
-        [identifier]: {
+        [id]: {
           loading: false,
+          error: false,
           pages: {
             [currentPage - 1]: {
               ..._.pick(result, schemaKeys),
               loading: false,
             },
           },
-          perPage: 30,
-          query,
-          nextPage,
+          perPage,
           totalEntries,
         },
       }, state);
     }
     case LAGER_REQUEST: {
-      const oldQuery = state[identifier] && state[identifier].query;
-      if (_.isEqual(oldQuery, query) && queriedPage > 1) {
-        return u({
-          [identifier]: {
-            loading: true,
-            pages: {
-              [queriedPage - 1]: {
-                loading: true,
-              },
-            },
-          },
-        }, state);
-      }
       return u({
-        [identifier]: {
+        [id]: {
           loading: true,
-          pages: () => ({
-            [queriedPage - 1]: {
+          pages: {
+            [page - 1]: {
               loading: true,
             },
-          }),
+          },
         },
       }, state);
     }
     case LAGER_FAILURE:
       return u({
-        [identifier]: {
+        [id]: {
           loading: false,
           error: true,
+          pages: {
+            [page - 1]: {
+              loading: false,
+            },
+          },
         },
       }, state);
     default:
