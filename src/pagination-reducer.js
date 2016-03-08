@@ -20,14 +20,14 @@ export default function paginationReducer(state = {}, action = {}) {
   }
   const {
     identifier,
-    endpoint,
+    input,
     schemaKeys,
   } = action;
   const {
     query: {
       page,
     } = {},
-  } = url.parse(endpoint, true);
+  } = url.parse(input, true);
   if (!page) {
     return state;
   }

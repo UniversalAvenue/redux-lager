@@ -33,7 +33,7 @@ describe('ResultReducer', () => {
   const identifier = 'resource/1';
   it('should be loading on request', () => {
     const oneEntityAction = requestWith({
-      endpoint: `${identifier}?page=1`,
+      input: `${identifier}?page=1`,
       identifier: `${identifier}?page=1`,
     });
     state = pagination(state, oneEntityAction);
@@ -42,7 +42,7 @@ describe('ResultReducer', () => {
   });
   it('should be failed on failed request', () => {
     const oneEntityAction = errorWith({
-      endpoint: `${identifier}?page=1`,
+      input: `${identifier}?page=1`,
       identifier: `${identifier}?page=1`,
     });
     state = pagination(state, oneEntityAction);
@@ -52,7 +52,7 @@ describe('ResultReducer', () => {
   });
   it('should succeed on succes request', () => {
     const oneEntityAction = successWith({
-      endpoint: `${identifier}?page=1`,
+      input: `${identifier}?page=1`,
       identifier: `${identifier}?page=1`,
       response: {
         result: {
@@ -76,7 +76,7 @@ describe('ResultReducer', () => {
   });
   it('should be loading on second page request', () => {
     const oneEntityAction = requestWith({
-      endpoint: `${identifier}?page=2`,
+      input: `${identifier}?page=2`,
       identifier: `${identifier}?page=2`,
     });
     state = pagination(state, oneEntityAction);
@@ -84,7 +84,7 @@ describe('ResultReducer', () => {
   });
   it('should succeed on second page succes request', () => {
     const oneEntityAction = successWith({
-      endpoint: `${identifier}?page=2`,
+      input: `${identifier}?page=2`,
       identifier: `${identifier}?page=2`,
       response: {
         result: {
