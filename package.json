@@ -31,9 +31,9 @@
   },
   "homepage": "https://github.com/UniversalAvenue/redux-lager#readme",
   "peerDependencies": {
-    "lodash": "^4.6.1",
-    "redux": "^3.3.1",
-    "updeep": "^0.13.0"
+    "lodash": "*",
+    "redux": "*",
+    "updeep": "*"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",
