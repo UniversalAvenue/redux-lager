@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "scripts": {
     "clean": "./node_modules/rimraf/bin.js lib",
-    "test": "npm run build && ./node_modules/jest-cli/bin/jest.js",
+    "test": "npm run build && ./node_modules/jest-cli/bin/jest.js --coverage",
     "build": "./node_modules/babel-cli/bin/babel.js src --out-dir lib",
     "pkgfiles": "./node_modules/pkgfiles/bin/pkgfiles.js",
     "prepublish": "npm run clean && npm run build",

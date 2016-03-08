@@ -36,6 +36,18 @@ const state = {
           },
         },
       },
+      '/users/most': {
+        perPage: 5,
+        totalEntries: 30,
+        pages: {
+          0: {
+            users: [1, 2, 3],
+          },
+          3: {
+            loading: true,
+          },
+        },
+      },
     },
     result: {
       '/users/siblings': {
@@ -107,18 +119,27 @@ describe('SelectFetchState', () => {
   });
 });
 
-describe('SelectPagedRow', () => {
-  const base = lager.selectPagedRow('/users/all', {
+describe('SelectRowGetter', () => {
+  const rowGetter = lager.selectRowGetter('/users/all', {
     users: 'users',
   })(state);
-  const fetchPage = jest.genMockFn();
-  const selectRow = base(fetchPage);
   it('should return user 1', () => {
-    const user1 = selectRow(0);
+    const user1 = rowGetter(0);
     expect(user1.name).toEqual('Kalle');
   });
   it('should return user 3', () => {
-    const user3 = selectRow(2);
+    const user3 = rowGetter(2);
     expect(user3.name).toEqual('Sven');
+  });
+});
+
+describe('SelectMissingPages', () => {
+  it('should indicate that one page is missing', () => {
+    const missingPages = lager.selectMissingPages('/users/most', false)(state);
+    expect(missingPages(0, 9)).toEqual([1]);
+  });
+  it('should indicate that two pages are missing', () => {
+    const missingPages = lager.selectMissingPages('/users/most', false)(state);
+    expect(missingPages(10, 20)).toEqual([2, 4]);
   });
 });

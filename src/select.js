@@ -63,43 +63,45 @@ export const selectFetchState = (identifier) => state => {
   return FETCH_STATE_COMPLETED;
 };
 
-export const selectIsPageLoading = endpoint => page => state => {
-  const store = _.get(state, `lager.pagination.${endpoint}.pages[${page - 1}]`);
+export const selectIsPageLoading = identifier => page => state => {
+  const store = _.get(state, `lager.pagination.${identifier}.pages[${page - 1}]`);
   if (!store) {
     return false;
   }
   return store.loading;
 };
 
-export const selectPagedRow = (endpoint, schema) => state => fetchPage => {
-  const store = _.get(state, `lager.pagination.${endpoint}`);
+function pageCoordinates(rowIndex, perPage) {
+  return {
+    pageId: Math.floor(rowIndex / perPage),
+    pagePosition: rowIndex % perPage,
+  };
+}
+
+export const selectRowGetter = (identifier, schema) => state => {
+  const store = _.get(state, `lager.pagination.${identifier}`);
   if (!store) {
     return null;
   }
-  return pos => {
-    const pageId = Math.floor(pos / store.perPage);
-    const maxPage = Math.ceil(store.totalEntries / store.perPage);
-    const inPagePos = pos % store.perPage;
+  return rowIndex => {
+    const {
+      pageId,
+      pagePosition,
+    } = pageCoordinates(rowIndex, store.perPage);
     const page = store.pages[pageId];
-    if (!store.pages[pageId + 1] && pageId + 2 < maxPage) {
-      fetchPage(pageId + 2);
-    }
     if (!page) {
-      if (pageId + 1 < maxPage) {
-        fetchPage(pageId + 1); // Pages aren't zero indexed
-      }
       return null;
     }
     const schemaKeys = _.keys(schema);
     if (schemaKeys.length === 1) {
-      const id = _.get(page, `${schemaKeys[0]}.[${inPagePos}]`);
+      const id = _.get(page, `${schemaKeys[0]}.[${pagePosition}]`);
       if (!id) {
         return null;
       }
       return selectEntity(schemaKeys[0])(id)(state);
     }
     return _.reduce(schemaKeys, (sum, key) => {
-      const id = _.get(page, `${key}.[${inPagePos}]`);
+      const id = _.get(page, `${key}.[${pagePosition}]`);
       if (!id) {
         return Object.assign(sum, {
           [key]: null,
@@ -112,10 +114,28 @@ export const selectPagedRow = (endpoint, schema) => state => fetchPage => {
   };
 };
 
-export const selectPageStats = (endpoint) => state => {
-  const store = _.get(state, `lager.pagination.${endpoint}`);
+export const selectPageStats = (identifier) => state => {
+  const store = _.get(state, `lager.pagination.${identifier}`);
   if (!store) {
     return null;
   }
   return _.omit(store, 'pages');
+};
+
+export const selectMissingPages = (identifier, eager) => state => {
+  const store = _.get(state, `lager.pagination.${identifier}`);
+  if (!store) {
+    return null;
+  }
+  return (min, max) => {
+    const minCoords = pageCoordinates(min, store.perPage);
+    const maxCoords = pageCoordinates(max, store.perPage);
+    const pad = eager ? 1 : 0;
+    const maxPageId = Math.ceil(store.totalEntries / store.perPage);
+    const pages = _.range(
+      Math.max(minCoords.pageId - pad, 0),
+      Math.min(maxCoords.pageId + pad, maxPageId) + 1
+    );
+    return _.filter(pages, pageId => !store.pages[pageId]);
+  };
 };
