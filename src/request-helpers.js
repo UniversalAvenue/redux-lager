@@ -39,7 +39,7 @@ export function prependPath(_prepend) {
 export function appendPath(_append) {
   return applyToInput((input, init) => {
     const append = _.isFunction(_append) ? _append(input, init) : _append;
-    return url.resolve(input, append);
+    return input + append;
   });
 }
 
