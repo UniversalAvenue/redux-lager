@@ -25,7 +25,7 @@ export const selectFullEntity = (type, nestled) => id => state => {
 
 
 export const selectResult = (identifier, schema) => state => {
-  const store = _.get(state, `lager.result.${identifier}`);
+  const store = _.get(state, `lager.result["${identifier}"]`);
   if (!store) {
     return null;
   }
@@ -49,7 +49,7 @@ export const selectResult = (identifier, schema) => state => {
 };
 
 export const selectFetchState = (identifier) => state => {
-  const store = _.get(state, `lager.result.${identifier}`);
+  const store = _.get(state, `lager.result["${identifier}"]`);
   if (!store) {
     return null;
   }
@@ -64,7 +64,7 @@ export const selectFetchState = (identifier) => state => {
 };
 
 export const selectIsPageLoading = identifier => page => state => {
-  const store = _.get(state, `lager.pagination.${identifier}.pages[${page - 1}]`);
+  const store = _.get(state, `lager.pagination["${identifier}"].pages[${page - 1}]`);
   if (!store) {
     return false;
   }
@@ -79,7 +79,7 @@ function pageCoordinates(rowIndex, perPage) {
 }
 
 export const selectRowGetter = (identifier, schema) => state => {
-  const store = _.get(state, `lager.pagination.${identifier}`);
+  const store = _.get(state, `lager.pagination["${identifier}"]`);
   if (!store) {
     return null;
   }
@@ -115,7 +115,7 @@ export const selectRowGetter = (identifier, schema) => state => {
 };
 
 export const selectPageStats = (identifier) => state => {
-  const store = _.get(state, `lager.pagination.${identifier}`);
+  const store = _.get(state, `lager.pagination["${identifier}"]`);
   if (!store) {
     return null;
   }
@@ -123,7 +123,7 @@ export const selectPageStats = (identifier) => state => {
 };
 
 export const selectMissingPages = (identifier, eager) => state => {
-  const store = _.get(state, `lager.pagination.${identifier}`);
+  const store = _.get(state, `lager.pagination["${identifier}"]`);
   if (!store) {
     return null;
   }
