@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import u from 'updeep';
 
+import { inflate } from './inflatr';
+
 export const FETCH_STATE_REQUESTED = 'requested';
 export const FETCH_STATE_COMPLETED = 'completed';
 export const FETCH_STATE_FAILED = 'failed';
@@ -13,15 +15,8 @@ export const selectEntities = type => ids => state => {
 export const selectEntity = type => id => state =>
   _.get(state, `lager.entities.${type}[${id}]`);
 
-export const selectFullEntity = (type, nestled) => id => state => {
-  const entity = selectEntity(type)(id)(state);
-  const nestledEntities = _.reduce(nestled, (sum, nestledType, entityAttribute) =>
-    Object.assign(sum, {
-      [entityAttribute]: selectEntities(nestledType)(entity[entityAttribute])(state),
-    })
-  , { });
-  return u(nestledEntities, entity);
-};
+export const selectInflatedEntity = (schema) => id =>
+  inflate(id, schema, selectEntity);
 
 
 export const selectResult = (identifier, schema) => state => {
@@ -29,20 +24,7 @@ export const selectResult = (identifier, schema) => state => {
   if (!store) {
     return null;
   }
-  let result = store.result;
-  if (result) {
-    result = _.reduce(schema, (sum, item, name) => {
-      const res = result[name];
-      if (_.isArray(res)) {
-        return Object.assign(sum, {
-          [name]: _.map(res, id => selectEntity(item._key)(id)(state)),
-        });
-      }
-      return Object.assign(sum, {
-        [name]: selectEntity(item._key)(res)(state),
-      });
-    }, { ...result });
-  }
+  const result = inflate(store.result, schema, selectEntity)(state);
   return u({
     result,
   }, store);
@@ -92,25 +74,17 @@ export const selectRowGetter = (identifier, schema) => state => {
     if (!page) {
       return null;
     }
-    const schemaKeys = _.keys(schema);
-    if (schemaKeys.length === 1) {
-      const id = _.get(page, `${schemaKeys[0]}.[${pagePosition}]`);
-      if (!id) {
-        return null;
-      }
-      return selectEntity(schemaKeys[0])(id)(state);
-    }
-    return _.reduce(schemaKeys, (sum, key) => {
-      const id = _.get(page, `${key}.[${pagePosition}]`);
-      if (!id) {
-        return Object.assign(sum, {
-          [key]: null,
-        });
-      }
-      return Object.assign(sum, {
-        [key]: selectEntity(key)(id)(state),
-      });
-    }, {});
+    const row = _.reduce(schema, (sum, sc, key) =>
+      u({
+        [key]: page[key][pagePosition],
+      }, sum)
+    , {});
+    const flatSchema = _.reduce(schema, (sum, sc, key) =>
+      u({
+        [key]: schema[key].getItemSchema(),
+      }, sum)
+    , {});
+    return inflate(row, flatSchema, selectEntity)(state);
   };
 };
 
