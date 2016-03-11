@@ -38,10 +38,18 @@ export default function paginationReducer(state = {}, action = {}) {
         result,
       } = action.response;
       const {
-        currentPage,
         totalEntries,
-        perPage,
       } = result;
+      let {
+        perPage,
+        currentPage,
+      } = result;
+      if (!perPage) {
+        perPage = result && result[schemaKeys[0]].length;
+      }
+      if (!currentPage) {
+        currentPage = page;
+      }
       return u({
         [id]: {
           loading: false,
