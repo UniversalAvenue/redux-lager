@@ -76,7 +76,7 @@ export const selectRowGetter = (identifier, schema) => state => {
     }
     const row = _.reduce(schema, (sum, sc, key) =>
       u({
-        [key]: page[key][pagePosition],
+        [key]: page[key] && page[key][pagePosition],
       }, sum)
     , {});
     const flatSchema = _.reduce(schema, (sum, sc, key) =>
