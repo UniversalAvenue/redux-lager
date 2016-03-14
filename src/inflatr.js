@@ -5,6 +5,9 @@ import IterableSchema from 'normalizr/lib/IterableSchema';
 
 export function inflate(data, schema, selectEntity) {
   return state => {
+    if (data === undefined) {
+      return data;
+    }
     if (schema instanceof EntitySchema) {
       const base = selectEntity(schema.getKey())(data)(state);
       const keys = _.filter(_.keys(schema), k => k.indexOf('_') !== 0);
