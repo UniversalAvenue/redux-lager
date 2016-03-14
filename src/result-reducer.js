@@ -1,6 +1,12 @@
 import u from 'updeep';
 
-import { LAGER_REQUEST, LAGER_FAILURE, LAGER_SUCCESS, LAGER_ACTION } from './middleware';
+import {
+  LAGER_RESET,
+  LAGER_REQUEST,
+  LAGER_FAILURE,
+  LAGER_SUCCESS,
+  LAGER_ACTION,
+} from './middleware';
 
 export default function resultReducer(state = {}, action = {}) {
   const lagerType = action[LAGER_ACTION];
@@ -12,6 +18,11 @@ export default function resultReducer(state = {}, action = {}) {
   } = action;
 
   switch (lagerType) {
+    case LAGER_RESET: {
+      return u({
+        [identifier]: null,
+      }, state);
+    }
     case LAGER_SUCCESS: {
       const {
         result,

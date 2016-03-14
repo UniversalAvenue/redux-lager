@@ -5,6 +5,7 @@ import { camelizeKeys } from 'humps';
 export const LAGER_FETCH = Symbol('Lager Fetch');
 export const LAGER_ACTION = Symbol('Lager Action');
 
+export const LAGER_RESET = 'LAGER RESET';
 export const LAGER_REQUEST = 'LAGER REQUEST';
 export const LAGER_SUCCESS = 'LAGER SUCCESS';
 export const LAGER_FAILURE = 'LAGER FAILURE';

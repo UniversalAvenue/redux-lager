@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { LAGER_FETCH } from './middleware';
+import { LAGER_FETCH, LAGER_RESET, LAGER_ACTION } from './middleware';
 import { requestHelper } from './fetch-wrap';
 
 export const ENTITIES_REQUEST = 'ENTITIES_REQUEST';
@@ -20,6 +20,13 @@ export function fetch(input, {
       schema,
       types,
     },
+  };
+}
+
+export function reset(identifier) {
+  return {
+    [LAGER_ACTION]: LAGER_RESET,
+    identifier,
   };
 }
 

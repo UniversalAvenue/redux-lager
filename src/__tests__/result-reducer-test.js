@@ -2,6 +2,7 @@ jest.dontMock('../result-reducer');
 jest.dontMock('../middleware');
 
 const {
+  LAGER_RESET,
   LAGER_REQUEST,
   LAGER_FAILURE,
   LAGER_SUCCESS,
@@ -22,6 +23,10 @@ describe('ResultReducer', () => {
   const errorWith = data => ({
     [LAGER_ACTION]: LAGER_FAILURE,
     ...data,
+  });
+  const reset = identifier => ({
+    [LAGER_ACTION]: LAGER_RESET,
+    identifier,
   });
   const identifier = 'resource/1';
   it('should be loading on request', () => {
@@ -49,5 +54,9 @@ describe('ResultReducer', () => {
     state = result(state, oneEntityAction);
     expect(state[identifier].loading).toEqual(false);
     expect(state[identifier].error).toEqual(true);
+  });
+  it('should reset it all', () => {
+    state = result(state, reset(identifier));
+    expect(state[identifier]).toEqual(null);
   });
 });

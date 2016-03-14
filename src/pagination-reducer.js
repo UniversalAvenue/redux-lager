@@ -2,7 +2,13 @@ import u from 'updeep';
 import _ from 'lodash';
 import url from 'url';
 
-import { LAGER_REQUEST, LAGER_FAILURE, LAGER_SUCCESS, LAGER_ACTION } from './middleware';
+import {
+  LAGER_RESET,
+  LAGER_REQUEST,
+  LAGER_FAILURE,
+  LAGER_SUCCESS,
+  LAGER_ACTION,
+} from './middleware';
 
 export function removePageParam(str) {
   const decomp = url.parse(str, true);
@@ -23,6 +29,12 @@ export default function paginationReducer(state = {}, action = {}) {
     input,
     schemaKeys,
   } = action;
+  const id = removePageParam(identifier);
+  if (lagerType === LAGER_RESET) {
+    return u({
+      [identifier]: null,
+    }, state);
+  }
   const {
     query: {
       page,
@@ -31,7 +43,6 @@ export default function paginationReducer(state = {}, action = {}) {
   if (!page) {
     return state;
   }
-  const id = removePageParam(identifier);
   switch (lagerType) {
     case LAGER_SUCCESS: {
       const {
