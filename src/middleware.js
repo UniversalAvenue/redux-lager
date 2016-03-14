@@ -1,6 +1,7 @@
 import fetchWrap from './fetch-wrap';
 import _ from 'lodash';
 import { normalize } from 'normalizr';
+import { camelizeKeys } from 'humps';
 export const LAGER_FETCH = Symbol('Lager Fetch');
 export const LAGER_ACTION = Symbol('Lager Action');
 
@@ -19,10 +20,15 @@ const buildCallApi = options => getState =>
         .then(json => ({ json, response }),
               error => ({ error, response }))
     ).then(({ json, response, error }) => {
-      if (!response.ok) {
-        return Promise.reject({ message: `${response.status}: ${response.statusText}`, error });
+      if (!response.ok || error) {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText,
+          fetchError: error,
+        });
       }
-      return normalize(json, schema);
+      const camelCase = camelizeKeys(json);
+      return normalize(camelCase, schema);
     });
 
 export default (options = {}) => store => {
@@ -84,7 +90,7 @@ export default (options = {}) => store => {
       }, LAGER_SUCCESS)),
       error => next(actionWith({
         type: failureType,
-        error: error.message || 'Something bad happened',
+        ...error,
       }, LAGER_FAILURE))
     );
   };
