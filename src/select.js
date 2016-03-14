@@ -105,7 +105,7 @@ export const selectMissingPages = (identifier, eager) => state => {
     const minCoords = pageCoordinates(min, store.perPage);
     const maxCoords = pageCoordinates(max, store.perPage);
     const pad = eager ? 1 : 0;
-    const maxPageId = Math.floor(store.totalEntries / store.perPage);
+    const maxPageId = Math.ceil(store.totalEntries / store.perPage) - 1;
     const pages = _.range(
       Math.max(minCoords.pageId - pad, 0),
       Math.min(maxCoords.pageId + pad, maxPageId) + 1
