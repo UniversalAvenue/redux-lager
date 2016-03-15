@@ -27,6 +27,7 @@ export function reset(identifier) {
   return {
     [LAGER_ACTION]: LAGER_RESET,
     identifier,
+    type: LAGER_RESET,
   };
 }
 
