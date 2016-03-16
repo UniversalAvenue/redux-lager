@@ -7,12 +7,15 @@ export const FETCH_STATE_REQUESTED = 'requested';
 export const FETCH_STATE_COMPLETED = 'completed';
 export const FETCH_STATE_FAILED = 'failed';
 
-export const entitiesSelector = type => state =>
+const _entitiesSelector = type => state =>
   type ? _.get(state, `lager.entities.${type}`) :
     state.lager.entities;
 
-export const entitySelector = (type, id) => state =>
-  _.get(state, `lager.entities.${type}[${id}]`);
+export const entitiesSelector = type =>
+  _entitiesSelector(type.getKey ? type.getKey() : type);
+
+export const entitySelector = (id, schema) => state =>
+  _.get(state, `lager.entities.${schema.getKey()}[${id}]`);
 
 export function inflatedEntitySelector(schema) {
   const entityTypes = getEntityKeys(schema);
@@ -72,19 +75,13 @@ function pageCoordinates(rowIndex, perPage) {
 }
 
 export function rowGetterSelector(identifier, schema) {
-  const entityTypes = getEntityKeys(schema);
-  const entitySelectors = entityTypes.map(t => entitiesSelector(t));
   return createSelector(
-    [
-      paginationSelector(identifier),
-      ...entitySelectors,
-    ],
-    (store, ...entities) => rowIndex => {
+    paginationSelector(identifier),
+    inflatedEntitySelector(schema),
+    (store, getEntity) => rowIndex => {
       if (!store) {
         return null;
       }
-      const entityStore = _.zipObject(entityTypes, entities);
-      const getEntity = type => id => () => _.get(entityStore, `${type}.["${id}"]`);
       const {
         pageId,
         pagePosition,
@@ -93,17 +90,11 @@ export function rowGetterSelector(identifier, schema) {
       if (!page) {
         return null;
       }
-      const row = _.reduce(schema, (sum, sc, key) =>
+      return _.reduce(schema, (sum, sc, key) =>
         u({
-          [key]: page[key] && page[key][pagePosition],
+          [key]: page[key] && getEntity(page[key][pagePosition], sc.getItemSchema()),
         }, sum)
       , {});
-      const flatSchema = _.reduce(schema, (sum, sc, key) =>
-        u({
-          [key]: schema[key].getItemSchema(),
-        }, sum)
-      , {});
-      return inflate(row, flatSchema, getEntity)();
     });
 }
 
