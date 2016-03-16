@@ -14,6 +14,19 @@ export const entitiesSelector = type => state =>
 export const entitySelector = (type, id) => state =>
   _.get(state, `lager.entities.${type}[${id}]`);
 
+export function inflatedEntitySelector(schema) {
+  const entityTypes = getEntityKeys(schema);
+  const entitySelectors = entityTypes.map(t => entitiesSelector(t));
+  return createSelector(
+    entitySelectors,
+    (...entities) => (id, _schema = schema) => {
+      const entityStore = _.zipObject(entityTypes, entities);
+      const getEntity = type => _id => () => _.get(entityStore, `${type}.["${_id}"]`);
+      return inflate(id, _schema, getEntity);
+    }
+  );
+}
+
 function append(prop) {
   if (!prop) {
     return '';
@@ -93,3 +106,21 @@ export function rowGetterSelector(identifier, schema) {
       return inflate(row, flatSchema, getEntity)();
     });
 }
+
+export const missingPagesSelector = (identifier, eager) =>
+  createSelector(
+    paginationSelector(identifier),
+    store => (min, max) => {
+      if (!store) {
+        return null;
+      }
+      const minCoords = pageCoordinates(min, store.perPage);
+      const maxCoords = pageCoordinates(max, store.perPage);
+      const pad = eager ? 1 : 0;
+      const maxPageId = Math.ceil(store.totalEntries / store.perPage) - 1;
+      const pages = _.range(
+        Math.max(minCoords.pageId - pad, 0),
+        Math.min(maxCoords.pageId + pad, maxPageId) + 1
+      );
+      return _.filter(pages, pageId => !_.get(store, `pages[${pageId}]`));
+    });

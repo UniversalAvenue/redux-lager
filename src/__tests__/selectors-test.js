@@ -179,3 +179,12 @@ describe('rowGetterSelector', () => {
     });
   });
 });
+
+describe('missingPagesSelector', () => {
+  const selector = lager.missingPagesSelector('users', true);
+  const m1 = selector(state);
+  const m2 = selector(state);
+  it('should memoize the output', () => {
+    expect(m1).toEqual(m2);
+  });
+});

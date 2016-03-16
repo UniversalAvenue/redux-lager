@@ -132,9 +132,10 @@ describe('SelectFetchState', () => {
 });
 
 describe('SelectRowGetter', () => {
-  const rowGetter = lager.selectRowGetter('/users/all', {
+  const selector = lager.selectRowGetter('/users/all', {
     users: arrayOf(user),
-  })(state);
+  });
+  const rowGetter = selector(state);
   it('should return user 1', () => {
     const user1 = rowGetter(0).users;
     expect(user1.name).toEqual('Kalle');

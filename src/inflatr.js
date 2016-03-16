@@ -17,7 +17,7 @@ export function inflate(data, schema, selectEntity) {
         }, sum)
       , base);
     } else if (schema instanceof IterableSchema) {
-      return data.map(id => inflate(id, schema.getItemSchema(), selectEntity)(state));
+      return _.map(data, id => inflate(id, schema.getItemSchema(), selectEntity)(state));
     }
     return _.reduce(schema, (sum, _schema, key) =>
       u({
