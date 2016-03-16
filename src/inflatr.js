@@ -26,3 +26,24 @@ export function inflate(data, schema, selectEntity) {
     , {});
   };
 }
+
+export function getEntityKeys(schema, knownKeys = []) {
+  if (schema === undefined) {
+    return [];
+  }
+  if (schema instanceof IterableSchema) {
+    return getEntityKeys(schema.getItemSchema());
+  }
+  let keys = [];
+  if (schema instanceof EntitySchema) {
+    keys = [schema.getKey()];
+    if (knownKeys.indexOf(keys[0]) > -1) {
+      return [];
+    }
+  }
+  const relKeys = _.flattenDeep(_(_.keys(schema))
+    .filter(k => k.indexOf('_') !== 0)
+    .map(key => getEntityKeys(schema[key], keys))
+    .value());
+  return [...keys, ...relKeys];
+}
