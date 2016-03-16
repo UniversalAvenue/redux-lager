@@ -33,6 +33,7 @@
   "peerDependencies": {
     "lodash": "*",
     "redux": "*",
+    "reselect": "^2.0.0",
     "updeep": "*"
   },
   "devDependencies": {

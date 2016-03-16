@@ -19,6 +19,40 @@ export function removePageParam(str) {
   return url.format(decomp);
 }
 
+function successReducer(state, action, page) {
+  const {
+    schemaKeys,
+  } = action;
+  const {
+    result,
+  } = action.response;
+  const {
+    totalEntries,
+  } = result;
+  let {
+    perPage,
+    currentPage,
+  } = result;
+  if (!perPage) {
+    perPage = result && result[schemaKeys[0]].length;
+  }
+  if (!currentPage) {
+    currentPage = page;
+  }
+  return u({
+    loading: false,
+    error: false,
+    pages: {
+      [currentPage - 1]: {
+        ..._.pick(result, schemaKeys),
+        loading: false,
+      },
+    },
+    perPage,
+    totalEntries,
+  }, state);
+}
+
 export default function paginationReducer(state = {}, action = {}) {
   const lagerType = action[LAGER_ACTION];
   if (!lagerType) {
@@ -27,7 +61,6 @@ export default function paginationReducer(state = {}, action = {}) {
   const {
     identifier,
     input,
-    schemaKeys,
   } = action;
   const id = removePageParam(identifier);
   if (lagerType === LAGER_RESET) {
@@ -45,35 +78,8 @@ export default function paginationReducer(state = {}, action = {}) {
   }
   switch (lagerType) {
     case LAGER_SUCCESS: {
-      const {
-        result,
-      } = action.response;
-      const {
-        totalEntries,
-      } = result;
-      let {
-        perPage,
-        currentPage,
-      } = result;
-      if (!perPage) {
-        perPage = result && result[schemaKeys[0]].length;
-      }
-      if (!currentPage) {
-        currentPage = page;
-      }
       return u({
-        [id]: {
-          loading: false,
-          error: false,
-          pages: {
-            [currentPage - 1]: {
-              ..._.pick(result, schemaKeys),
-              loading: false,
-            },
-          },
-          perPage,
-          totalEntries,
-        },
+        [id]: successReducer(state[id], action, page),
       }, state);
     }
     case LAGER_REQUEST: {
