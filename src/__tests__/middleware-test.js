@@ -58,7 +58,8 @@ describe('Middleware', () => {
     fetch.mockImpl(() => new Promise((res) =>
       res({
         ok: false,
-        error: 'Could not process request',
+        status: 401,
+        statusText: 'Not authorized',
       })
     ));
     const next = jest.genMockFn();
@@ -88,9 +89,10 @@ describe('Middleware', () => {
     };
 
     return _ware(next)(action)
-      .then((successAction) => {
+      .then(() => undefined,
+      (error) => {
         expect(next.mock.calls[0][0].type).toEqual(REQUEST_TYPE);
-        expect(successAction.type).toEqual(ERROR_TYPE);
+        expect(error.status).toEqual(401);
       });
   });
 });

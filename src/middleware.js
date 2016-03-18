@@ -16,7 +16,8 @@ const buildCallApi = options => getState =>
     schema,
     init
   ) => fetchWrap(options, getState())(input, init)
-    .then(response =>
+    .then(response => !_.isFunction(response.json) ?
+      Promise.resolve({ json: {}, response }) :
       response.json()
         .then(json => ({ json, response }),
               error => ({ error, response }))
@@ -30,7 +31,7 @@ const buildCallApi = options => getState =>
       }
       const camelCase = camelizeKeys(json);
       return normalize(camelCase, schema);
-    });
+    }, error => Promise.reject({ error }));
 
 export default (options = {}) => store => {
   const callApi = buildCallApi(options)(store.getState);
@@ -89,10 +90,13 @@ export default (options = {}) => store => {
         response,
         type: successType,
       }, LAGER_SUCCESS)),
-      error => next(actionWith({
-        type: failureType,
-        ...error,
-      }, LAGER_FAILURE))
+      error => {
+        next(actionWith({
+          type: failureType,
+          ...error,
+        }, LAGER_FAILURE));
+        return Promise.reject(error);
+      }
     );
   };
 };
