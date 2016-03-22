@@ -43,6 +43,22 @@ export const resultSelector = (identifier, property) => state =>
     `lager.result["${identifier}"]${append(property)}`
   );
 
+export function inflatedResultSelector(identifier, schema) {
+  const entityTypes = getEntityKeys(schema);
+  const entitySelectors = entityTypes.map(t => entitiesSelector(t));
+  return createSelector(
+    [
+      resultSelector(identifier, 'result'),
+      ...entitySelectors,
+    ],
+    (result, ...entities) => {
+      const entityStore = _.zipObject(entityTypes, entities);
+      const getEntity = type => _id => () => _.get(entityStore, `${type}.["${_id}"]`);
+      return inflate(result, schema, getEntity)();
+    }
+  );
+}
+
 export const fetchStateSelector = identifier => createSelector(
   resultSelector(identifier, 'loading'),
   resultSelector(identifier, 'error'),

@@ -31,6 +31,10 @@ const rolesPage = {
   roles: arrayOf(role),
 };
 
+const roles = {
+  items: arrayOf(role),
+};
+
 function actionWith(data) {
   return {
     [LAGER_ACTION]: LAGER_SUCCESS,
@@ -52,6 +56,15 @@ function rolesPageAction(response) {
     input: '/admin/roles?page=1',
     identifier: 'roles',
     schemaKeys: _.keys(rolesPage),
+    response,
+  });
+}
+
+function rolesAction(input, response) {
+  return actionWith({
+    input,
+    identifier: input,
+    schemaKeys: _.keys(roles),
     response,
   });
 }
@@ -129,8 +142,15 @@ const rolesPageResponse = normalize({
     { id: 1, name: 'Worker' },
     { id: 2, name: 'Boss' },
   ],
-  totalEntires: 20,
+  totalEntries: 20,
 }, rolesPage);
+
+const rolesResponse = normalize({
+  items: [
+    { id: 1, name: 'Worker' },
+    { id: 2, name: 'Boss' },
+  ],
+}, roles);
 
 const state = {
   lager: reducer({}, usersPageAction(usersPageResponse)),
@@ -186,5 +206,21 @@ describe('missingPagesSelector', () => {
   const m2 = selector(state);
   it('should memoize the output', () => {
     expect(m1).toEqual(m2);
+  });
+});
+
+describe('inflatedResultSelector', () => {
+  const rolesState = {
+    lager: reducer({}, rolesAction('admin/roles', rolesResponse)),
+  };
+  const selector = lager.inflatedResultSelector('admin/roles', roles);
+  const m1 = selector(rolesState);
+  const m2 = selector(rolesState);
+  it('should memoize the output', () => {
+    expect(m1).toEqual(m2);
+  });
+  it('should have a fully inflated result', () => {
+    expect(m1.items[0].name).toEqual('Worker');
+    expect(m1.items[1].name).toEqual('Boss');
   });
 });
