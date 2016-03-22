@@ -25,7 +25,7 @@ export function inflatedEntitySelector(schema) {
     (...entities) => (id, _schema = schema) => {
       const entityStore = _.zipObject(entityTypes, entities);
       const getEntity = type => _id => () => _.get(entityStore, `${type}.["${_id}"]`);
-      return inflate(id, _schema, getEntity);
+      return inflate(id, _schema, getEntity)();
     }
   );
 }
