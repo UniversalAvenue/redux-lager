@@ -2,8 +2,8 @@ import fetchWrap from './fetch-wrap';
 import _ from 'lodash';
 import { normalize } from 'normalizr';
 import { camelizeKeys } from 'humps';
-export const LAGER_FETCH = Symbol('Lager Fetch');
-export const LAGER_ACTION = Symbol('Lager Action');
+export const LAGER_FETCH = '__lager_fetch';
+export const LAGER_ACTION = '__lager_action';
 
 export const LAGER_RESET = 'LAGER RESET';
 export const LAGER_REQUEST = 'LAGER REQUEST';
