@@ -66,6 +66,7 @@
     }
   },
   "dependencies": {
+    "eslint": "2.2.0",
     "humps": "^1.0.0",
     "normalizr": "^2.0.0",
     "url": "^0.11.0"
