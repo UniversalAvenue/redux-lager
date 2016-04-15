@@ -34,7 +34,7 @@ function successReducer(state, action, page) {
     currentPage,
   } = result;
   if (!perPage) {
-    perPage = result && result[schemaKeys[0]].length;
+    perPage = result && _.size(result[schemaKeys[0]]);
   }
   if (!currentPage) {
     currentPage = page;
