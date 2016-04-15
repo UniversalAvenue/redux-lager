@@ -119,7 +119,10 @@ export const missingPagesSelector = (identifier, eager) =>
     paginationSelector(identifier),
     store => (min, max) => {
       if (!store) {
-        return null;
+        return [];
+      }
+      if (store.perPage < 1) {
+        return [];
       }
       const minCoords = pageCoordinates(min, store.perPage);
       const maxCoords = pageCoordinates(max, store.perPage);

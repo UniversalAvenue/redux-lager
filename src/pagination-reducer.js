@@ -35,6 +35,9 @@ function successReducer(state, action, page) {
   } = result;
   if (!perPage) {
     perPage = result && _.size(result[schemaKeys[0]]);
+    if (state && state.perPage > 0) {
+      perPage = Math.max(perPage, state.perPage);
+    }
   }
   if (!currentPage) {
     currentPage = page;
@@ -52,6 +55,7 @@ function successReducer(state, action, page) {
     totalEntries,
   }, state);
 }
+
 
 export default function paginationReducer(state = {}, action = {}) {
   const lagerType = action[LAGER_ACTION];
