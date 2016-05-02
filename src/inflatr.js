@@ -10,6 +10,9 @@ export function inflate(data, schema, selectEntity) {
     }
     if (schema instanceof EntitySchema) {
       const base = selectEntity(schema.getKey())(data)(state);
+      if (!base) {
+        return base;
+      }
       const keys = _.filter(_.keys(schema), k => k.indexOf('_') !== 0);
       return _.reduce(keys, (sum, key) =>
         u({
