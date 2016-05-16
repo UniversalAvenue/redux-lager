@@ -27,6 +27,7 @@ const buildCallApi = options => getState =>
           status: response.status,
           statusText: response.statusText,
           fetchError: error,
+          json,
         });
       }
       const camelCase = camelizeKeys(json);
